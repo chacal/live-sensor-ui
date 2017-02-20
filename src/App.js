@@ -4,7 +4,7 @@ import Mqtt from 'mqtt'
 import R from 'ramda'
 import moment from 'moment'
 
-const MQTT_BROKER = 'ws://ha-opi:8883'
+const MQTT_BROKER = 'ws://mqtt-home.chacal.online:8883'
 
 class App extends Component {
   constructor(props) {
