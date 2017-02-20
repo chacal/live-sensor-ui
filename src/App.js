@@ -15,16 +15,18 @@ class App extends Component {
 
   render() {
     return (
-      <div>
-        <h1>Sensors</h1>
-        <h2>Temperature</h2>
-        <table><tbody>{renderTemperatures(this.state.sensorValues)}</tbody></table>
-        <h2>Humidity</h2>
-        <table><tbody>{renderHumidities(this.state.sensorValues)}</tbody></table>
-        <h2>Pressure</h2>
-        <table><tbody>{renderPressures(this.state.sensorValues)}</tbody></table>
-        <h2>Tank level</h2>
-        <table><tbody>{renderTankLevels(this.state.sensorValues)}</tbody></table>
+      <div className="container">
+        <div className="row">
+          <h1>Sensors</h1>
+          <h2>Temperature</h2>
+          {renderTemperatures(this.state.sensorValues)}
+          <h2>Humidity</h2>
+          {renderHumidities(this.state.sensorValues)}
+          <h2>Pressure</h2>
+          {renderPressures(this.state.sensorValues)}
+          <h2>Tank level</h2>
+          {renderTankLevels(this.state.sensorValues)}
+        </div>
       </div>
     )
   }
@@ -53,15 +55,19 @@ function renderPressures(sensorValues) { return renderBasicEvents(sensorValues, 
 function renderTankLevels(sensorValues) { return renderBasicEvents(sensorValues, 'w', R.prop('tankLevel'), '%') }
 
 function renderBasicEvents(sensorValues, tag, valueExtractor, unitLabel) {
-  return eventsByTag(sensorValues, tag).map(e =>
-    <tr key={e.instance}>
-      <td>{e.instance}</td>
-      <td>{valueExtractor(e).toFixed(2) + ' ' + unitLabel}</td>
-      <td>{e.vcc ? (e.vcc / 1000).toFixed(3) + 'V' : '-'}</td>
-      <td>{e.previousSampleTimeMicros ? e.previousSampleTimeMicros + 'µs' : '-'}</td>
-      <td>{moment(e.ts).format('HH:mm:ss')}</td>
-    </tr>
-  )
+  return <table className="table table-striped table-bordered text-right basic-event">
+    <tbody>{
+      eventsByTag(sensorValues, tag).map(e =>
+        <tr key={e.instance}>
+          <td>{e.instance}</td>
+          <td>{valueExtractor(e).toFixed(2) + ' ' + unitLabel}</td>
+          <td>{e.vcc ? (e.vcc / 1000).toFixed(3) + 'V' : '-'}</td>
+          <td>{e.previousSampleTimeMicros ? e.previousSampleTimeMicros + 'µs' : '-'}</td>
+          <td>{moment(e.ts).format('HH:mm:ss')}</td>
+        </tr>)
+    }</tbody>
+  </table>
+
 }
 
 function eventsByTag(sensorValues, tag) {
