@@ -19,6 +19,12 @@ class App extends Component {
         <h1>Sensors</h1>
         <h2>Temperature</h2>
         <table><tbody>{renderTemperatures(this.state.sensorValues)}</tbody></table>
+        <h2>Humidity</h2>
+        <table><tbody>{renderHumidities(this.state.sensorValues)}</tbody></table>
+        <h2>Pressure</h2>
+        <table><tbody>{renderPressures(this.state.sensorValues)}</tbody></table>
+        <h2>Tank level</h2>
+        <table><tbody>{renderTankLevels(this.state.sensorValues)}</tbody></table>
       </div>
     )
   }
@@ -37,11 +43,16 @@ class App extends Component {
   }
 }
 
-function renderTemperatures(sensorValues) {
-  return eventsByTag(sensorValues, 't').map(e =>
+function renderTemperatures(sensorValues) { return renderBasicEvents(sensorValues, 't', R.prop('temperature'), '°C') }
+function renderHumidities(sensorValues) { return renderBasicEvents(sensorValues, 'h', R.prop('humidity'), '%H') }
+function renderPressures(sensorValues) { return renderBasicEvents(sensorValues, 'p', R.prop('pressure'), 'mbar') }
+function renderTankLevels(sensorValues) { return renderBasicEvents(sensorValues, 'w', R.prop('tankLevel'), '%') }
+
+function renderBasicEvents(sensorValues, tag, valueExtractor, unitLabel) {
+  return eventsByTag(sensorValues, tag).map(e =>
     <tr key={e.instance}>
       <td>{e.instance}</td>
-      <td>{e.temperature.toFixed(2) + ' °C'}</td>
+      <td>{valueExtractor(e).toFixed(2) + ' ' + unitLabel}</td>
       <td>{e.vcc ? (e.vcc / 1000).toFixed(3) + 'V' : '-'}</td>
       <td>{e.previousSampleTimeMicros ? e.previousSampleTimeMicros + 'µs' : '-'}</td>
       <td>{moment(e.ts).format('HH:mm:ss')}</td>
