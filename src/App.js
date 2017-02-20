@@ -34,10 +34,14 @@ class App extends Component {
     mqttClient.on('connect', () => {
       mqttClient.subscribe('/sensor/+/+/state')
       mqttClient.on('message', (topic, message) => {
-        const event = JSON.parse(message)
-        const hierarchicalEvent = { [event.instance + '_' + event.tag]: event }
+        try {
+          const event = JSON.parse(message)
+          const hierarchicalEvent = { [event.instance + '_' + event.tag]: event }
 
-        this.setState(prevState => ({ sensorValues: R.mergeWith(R.merge, prevState.sensorValues, hierarchicalEvent) }))
+          this.setState(prevState => ({ sensorValues: R.mergeWith(R.merge, prevState.sensorValues, hierarchicalEvent) }))
+        } catch (e) {
+          console.warn('Exception when handling MQTT message:', message.toString(), e)
+        }
       })
     })
   }
