@@ -1,3 +1,12 @@
 table.basic-event td {
     width: 20%;
 }
+
+h1 {
+    display: inline-block;
+}
+
+select.brokerSelect {
+    float: right;
+    margin-top: 30px;
+}
