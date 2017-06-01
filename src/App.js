@@ -47,23 +47,25 @@ class App extends Component {
     const mqttClient = Mqtt.connect(brokerUrl)
     mqttClient.on('connect', () => {
       mqttClient.subscribe('/sensor/+/+/state')
-      mqttClient.on('message', (topic, message) => {
-        const [, , instance, tag, ] = topic.split('/')
-        const key = instance + '_' + tag
-
-        if(message.length === 0) {
-          this.setState(prevState => ({ sensorValues: R.omit(key, prevState.sensorValues) }))
-        } else {
-          try {
-            const event = JSON.parse(message)
-            this.setState(prevState => ({ sensorValues: R.mergeWith(R.merge, prevState.sensorValues, { [key]: event }) }))
-          } catch (e) {
-            console.warn('Exception when handling MQTT message:', message.toString(), e)
-          }
-        }
-      })
+      mqttClient.on('message', this.onMqttMessage.bind(this))
     })
     return mqttClient
+  }
+
+  onMqttMessage(topic, message) {
+    const [, , instance, tag,] = topic.split('/')
+    const key = instance + '_' + tag
+
+    if(message.length === 0) {
+      this.setState(prevState => ({sensorValues: R.omit(key, prevState.sensorValues)}))
+    } else {
+      try {
+        const event = JSON.parse(message)
+        this.setState(prevState => ({sensorValues: R.mergeWith(R.merge, prevState.sensorValues, {[key]: event})}))
+      } catch(e) {
+        console.warn('Exception when handling MQTT message:', message.toString(), e)
+      }
+    }
   }
 
   renderTemperatures(sensorValues) { return this.renderBasicEvents(sensorValues, 't', R.prop('temperature'), '°C') }
