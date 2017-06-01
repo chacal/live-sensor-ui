@@ -4,13 +4,13 @@ import Mqtt from 'mqtt'
 import R from 'ramda'
 import moment from 'moment'
 
-const MQTT_BROKER = 'ws://mqtt-home.chacal.fi:8883'
+const MQTT_BROKERS = [{name: 'Home', url: 'ws://mqtt-home.chacal.fi:8883'}, {name: 'Freya', url: 'ws://10.90.100.1:8883'}]
 
 class App extends Component {
   constructor(props) {
     super(props)
-    this.state = { sensorValues: {} }
-    this.startMqttClient()
+    this.state = { sensorValues: {}, mqttBroker: MQTT_BROKERS[0] }
+    this.mqttClient = this.startMqttClient(this.state.mqttBroker.url)
   }
 
   render() {
@@ -18,6 +18,9 @@ class App extends Component {
       <div className="container">
         <div className="row">
           <h1>Sensors</h1>
+          <select className="brokerSelect" name="mqttBroker" value={this.state.mqttBroker.name} onChange={this.onMqttBrokerChanged.bind(this)}>
+            { MQTT_BROKERS.map(broker => <option key={broker.url} data-url={broker.url}>{broker.name}</option>) }
+          </select>
           <h2>Temperature</h2>
           {renderTemperatures(this.state.sensorValues)}
           <h2>Humidity</h2>
@@ -31,8 +34,16 @@ class App extends Component {
     )
   }
 
-  startMqttClient() {
-    const mqttClient = Mqtt.connect(MQTT_BROKER)
+  onMqttBrokerChanged(e) {
+    this.mqttClient.end()
+
+    const newBroker = MQTT_BROKERS.find(b => b.name === e.target.value)
+    this.setState({ sensorValues: {}, mqttBroker: newBroker })
+    this.mqttClient = this.startMqttClient(newBroker.url)
+  }
+
+  startMqttClient(brokerUrl) {
+    const mqttClient = Mqtt.connect(brokerUrl)
     mqttClient.on('connect', () => {
       mqttClient.subscribe('/sensor/+/+/state')
       mqttClient.on('message', (topic, message) => {
@@ -46,6 +57,7 @@ class App extends Component {
         }
       })
     })
+    return mqttClient
   }
 }
 
