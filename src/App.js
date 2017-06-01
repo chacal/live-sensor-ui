@@ -17,17 +17,17 @@ class App extends Component {
     return (
       <div className="container">
         <div className="row">
-          <h1>Sensors</h1>
-          <select className="brokerSelect" name="mqttBroker" value={this.state.mqttBroker.name} onChange={this.onMqttBrokerChanged.bind(this)}>
+          <h2>Sensors</h2>
+          <select className="brokerSelect form-control input-sm" name="mqttBroker" value={this.state.mqttBroker.name} onChange={this.onMqttBrokerChanged.bind(this)}>
             { MQTT_BROKERS.map(broker => <option key={broker.url} data-url={broker.url}>{broker.name}</option>) }
           </select>
-          <h2>Temperature</h2>
+          <h3>Temperature</h3>
           {renderTemperatures(this.state.sensorValues)}
-          <h2>Humidity</h2>
+          <h3>Humidity</h3>
           {renderHumidities(this.state.sensorValues)}
-          <h2>Pressure</h2>
+          <h3>Pressure</h3>
           {renderPressures(this.state.sensorValues)}
-          <h2>Tank level</h2>
+          <h3>Tank level</h3>
           {renderTankLevels(this.state.sensorValues)}
         </div>
       </div>
