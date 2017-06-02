@@ -10,7 +10,7 @@ const MQTT_BROKERS = [{name: 'Home', url: 'ws://mqtt-home.chacal.fi:8883'}, {nam
 class App extends Component {
   constructor(props) {
     super(props)
-    this.state = { sensorValues: {}, mqttBroker: MQTT_BROKERS[0] }
+    this.state = { sensorValues: {}, mqttBroker: getInitialMqttBroker() }
     this.mqttClient = this.startMqttClient(this.state.mqttBroker.url)
   }
 
@@ -40,6 +40,8 @@ class App extends Component {
 
     const newBroker = MQTT_BROKERS.find(b => b.name === e.target.value)
     this.setState({ sensorValues: {}, mqttBroker: newBroker })
+    localStorage.mqttBroker = JSON.stringify(newBroker)
+
     this.mqttClient = this.startMqttClient(newBroker.url)
   }
 
@@ -96,6 +98,10 @@ function eventsByTag(sensorValues, tag) {
     R.filter(R.propEq('tag', tag)),
     R.sortBy(R.prop('instance'))
   )(sensorValues)
+}
+
+function getInitialMqttBroker() {
+  return localStorage.mqttBroker ? JSON.parse(localStorage.mqttBroker) : MQTT_BROKERS[0]
 }
 
 export default App
