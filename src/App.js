@@ -87,12 +87,12 @@ class App extends Component {
           <tbody>{
             selectedEvents.map(e =>
               <tr key={e.instance}>
-                <td>{e.instance}</td>
-                <td>{valueExtractor(e) + ' ' + unitLabel}</td>
-                <td>{e.vcc ? (e.vcc / 1000).toFixed(3) + 'V' : '-'}</td>
-                <td>{e.previousSampleTimeMicros ? e.previousSampleTimeMicros + 'µs' : '-'}</td>
-                <td>{moment(e.ts).format('HH:mm:ss')}</td>
-                <td><ClearButton tag={tag} instance={e.instance} mqttClient={this.mqttClient}/></td>
+                <td className="instance">{e.instance}</td>
+                <td className="value">{valueExtractor(e) + ' ' + unitLabel}</td>
+                <td className="vcc">{e.vcc ? (e.vcc / 1000).toFixed(3) + 'V' : '-'}</td>
+                <td className="sampleTime">{e.previousSampleTimeMicros ? e.previousSampleTimeMicros + 'µs' : '-'}</td>
+                <td className="timestamp">{moment(e.ts).format('HH:mm:ss')}</td>
+                <td className="clear"><ClearButton tag={tag} instance={e.instance} mqttClient={this.mqttClient}/></td>
               </tr>)
           }</tbody>
         </table>
