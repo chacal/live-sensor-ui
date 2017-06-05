@@ -26,6 +26,7 @@ class App extends Component {
           {this.renderHumidities(this.state.sensorValues)}
           {this.renderPressures(this.state.sensorValues)}
           {this.renderTankLevels(this.state.sensorValues)}
+          {this.renderCurrents(this.state.sensorValues)}
         </div>
       </div>
     )
@@ -70,6 +71,7 @@ class App extends Component {
   renderHumidities(sensorValues) { return this.renderBasicEvents(sensorValues, 'h', R.prop('humidity'), 'Humidity', '%H') }
   renderPressures(sensorValues) { return this.renderBasicEvents(sensorValues, 'p', R.prop('pressure'), 'Pressure', 'mbar') }
   renderTankLevels(sensorValues) { return this.renderBasicEvents(sensorValues, 'w', R.prop('tankLevel'), 'Tank level', '%') }
+  renderCurrents(sensorValues) { return this.renderBasicEvents(sensorValues, 'c', R.prop('current'), 'Current', 'A') }
 
   renderBasicEvents(sensorValues, tag, valueExtractor, headingText, unitLabel) {
     const selectedEvents = eventsByTag(sensorValues, tag)
