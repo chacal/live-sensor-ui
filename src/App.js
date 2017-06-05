@@ -27,6 +27,8 @@ class App extends Component {
           {this.renderPressures(this.state.sensorValues)}
           {this.renderTankLevels(this.state.sensorValues)}
           {this.renderCurrents(this.state.sensorValues)}
+          {this.renderLevelReports(this.state.sensorValues)}
+          {this.renderRFM69GwStats(this.state.sensorValues)}
         </div>
       </div>
     )
@@ -72,6 +74,8 @@ class App extends Component {
   renderPressures(sensorValues) { return this.renderBasicEvents(sensorValues, 'p', fixedNumber('pressure'), 'Pressure', 'mbar') }
   renderTankLevels(sensorValues) { return this.renderBasicEvents(sensorValues, 'w', fixedNumber('tankLevel'), 'Tank level', '%') }
   renderCurrents(sensorValues) { return this.renderBasicEvents(sensorValues, 'c', fixedNumber('current'), 'Current', 'A') }
+  renderLevelReports(sensorValues) { return this.renderBasicEvents(sensorValues, 'r', R.prop('level'), 'Level Report', '') }
+  renderRFM69GwStats(sensorValues) { return this.renderBasicEvents(sensorValues, 's', rfm69GwStatsExtractor, 'RFM69 GW Stats', '') }
 
   renderBasicEvents(sensorValues, tag, valueExtractor, headingText, unitLabel) {
     const selectedEvents = eventsByTag(sensorValues, tag)
@@ -106,6 +110,8 @@ function eventsByTag(sensorValues, tag) {
 }
 
 function fixedNumber(propName) { return event => R.prop(propName, event).toFixed(2) }
+function rfm69GwStatsExtractor(event) { return event.rssi + 'dB (ACK: ' + event.ackSent + ')'}
+
 function getInitialMqttBroker() {
   return localStorage.mqttBroker ? JSON.parse(localStorage.mqttBroker) : MQTT_BROKERS[0]
 }
