@@ -22,13 +22,9 @@ class App extends Component {
           <select className="brokerSelect form-control input-sm" name="mqttBroker" value={this.state.mqttBroker.name} onChange={this.onMqttBrokerChanged.bind(this)}>
             { MQTT_BROKERS.map(broker => <option key={broker.url} data-url={broker.url}>{broker.name}</option>) }
           </select>
-          <h3>Temperature</h3>
           {this.renderTemperatures(this.state.sensorValues)}
-          <h3>Humidity</h3>
           {this.renderHumidities(this.state.sensorValues)}
-          <h3>Pressure</h3>
           {this.renderPressures(this.state.sensorValues)}
-          <h3>Tank level</h3>
           {this.renderTankLevels(this.state.sensorValues)}
         </div>
       </div>
@@ -70,25 +66,32 @@ class App extends Component {
     }
   }
 
-  renderTemperatures(sensorValues) { return this.renderBasicEvents(sensorValues, 't', R.prop('temperature'), '°C') }
-  renderHumidities(sensorValues) { return this.renderBasicEvents(sensorValues, 'h', R.prop('humidity'), '%H') }
-  renderPressures(sensorValues) { return this.renderBasicEvents(sensorValues, 'p', R.prop('pressure'), 'mbar') }
-  renderTankLevels(sensorValues) { return this.renderBasicEvents(sensorValues, 'w', R.prop('tankLevel'), '%') }
+  renderTemperatures(sensorValues) { return this.renderBasicEvents(sensorValues, 't', R.prop('temperature'), 'Temperature', '°C') }
+  renderHumidities(sensorValues) { return this.renderBasicEvents(sensorValues, 'h', R.prop('humidity'), 'Humidity', '%H') }
+  renderPressures(sensorValues) { return this.renderBasicEvents(sensorValues, 'p', R.prop('pressure'), 'Pressure', 'mbar') }
+  renderTankLevels(sensorValues) { return this.renderBasicEvents(sensorValues, 'w', R.prop('tankLevel'), 'Tank level', '%') }
 
-  renderBasicEvents(sensorValues, tag, valueExtractor, unitLabel) {
-    return <table className="table table-striped table-bordered text-right basic-event">
-      <tbody>{
-        eventsByTag(sensorValues, tag).map(e =>
-          <tr key={e.instance}>
-            <td>{e.instance}</td>
-            <td>{valueExtractor(e).toFixed(2) + ' ' + unitLabel}</td>
-            <td>{e.vcc ? (e.vcc / 1000).toFixed(3) + 'V' : '-'}</td>
-            <td>{e.previousSampleTimeMicros ? e.previousSampleTimeMicros + 'µs' : '-'}</td>
-            <td>{moment(e.ts).format('HH:mm:ss')}</td>
-            <td><ClearButton tag={tag} instance={e.instance} mqttClient={this.mqttClient}/></td>
-          </tr>)
-      }</tbody>
-    </table>
+  renderBasicEvents(sensorValues, tag, valueExtractor, headingText, unitLabel) {
+    const selectedEvents = eventsByTag(sensorValues, tag)
+
+    return selectedEvents.length > 0 ?
+      <div>
+        <h3>{headingText}</h3>
+        <table className="table table-striped table-bordered text-right basic-event">
+          <tbody>{
+            selectedEvents.map(e =>
+              <tr key={e.instance}>
+                <td>{e.instance}</td>
+                <td>{valueExtractor(e).toFixed(2) + ' ' + unitLabel}</td>
+                <td>{e.vcc ? (e.vcc / 1000).toFixed(3) + 'V' : '-'}</td>
+                <td>{e.previousSampleTimeMicros ? e.previousSampleTimeMicros + 'µs' : '-'}</td>
+                <td>{moment(e.ts).format('HH:mm:ss')}</td>
+                <td><ClearButton tag={tag} instance={e.instance} mqttClient={this.mqttClient}/></td>
+              </tr>)
+          }</tbody>
+        </table>
+      </div>
+      : undefined
   }
 }
 
