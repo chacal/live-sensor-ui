@@ -67,11 +67,11 @@ class App extends Component {
     }
   }
 
-  renderTemperatures(sensorValues) { return this.renderBasicEvents(sensorValues, 't', R.prop('temperature'), 'Temperature', '°C') }
-  renderHumidities(sensorValues) { return this.renderBasicEvents(sensorValues, 'h', R.prop('humidity'), 'Humidity', '%H') }
-  renderPressures(sensorValues) { return this.renderBasicEvents(sensorValues, 'p', R.prop('pressure'), 'Pressure', 'mbar') }
-  renderTankLevels(sensorValues) { return this.renderBasicEvents(sensorValues, 'w', R.prop('tankLevel'), 'Tank level', '%') }
-  renderCurrents(sensorValues) { return this.renderBasicEvents(sensorValues, 'c', R.prop('current'), 'Current', 'A') }
+  renderTemperatures(sensorValues) { return this.renderBasicEvents(sensorValues, 't', fixedNumber('temperature'), 'Temperature', '°C') }
+  renderHumidities(sensorValues) { return this.renderBasicEvents(sensorValues, 'h', fixedNumber('humidity'), 'Humidity', '%H') }
+  renderPressures(sensorValues) { return this.renderBasicEvents(sensorValues, 'p', fixedNumber('pressure'), 'Pressure', 'mbar') }
+  renderTankLevels(sensorValues) { return this.renderBasicEvents(sensorValues, 'w', fixedNumber('tankLevel'), 'Tank level', '%') }
+  renderCurrents(sensorValues) { return this.renderBasicEvents(sensorValues, 'c', fixedNumber('current'), 'Current', 'A') }
 
   renderBasicEvents(sensorValues, tag, valueExtractor, headingText, unitLabel) {
     const selectedEvents = eventsByTag(sensorValues, tag)
@@ -84,7 +84,7 @@ class App extends Component {
             selectedEvents.map(e =>
               <tr key={e.instance}>
                 <td>{e.instance}</td>
-                <td>{valueExtractor(e).toFixed(2) + ' ' + unitLabel}</td>
+                <td>{valueExtractor(e) + ' ' + unitLabel}</td>
                 <td>{e.vcc ? (e.vcc / 1000).toFixed(3) + 'V' : '-'}</td>
                 <td>{e.previousSampleTimeMicros ? e.previousSampleTimeMicros + 'µs' : '-'}</td>
                 <td>{moment(e.ts).format('HH:mm:ss')}</td>
@@ -105,6 +105,7 @@ function eventsByTag(sensorValues, tag) {
   )(sensorValues)
 }
 
+function fixedNumber(propName) { return event => R.prop(propName, event).toFixed(2) }
 function getInitialMqttBroker() {
   return localStorage.mqttBroker ? JSON.parse(localStorage.mqttBroker) : MQTT_BROKERS[0]
 }
