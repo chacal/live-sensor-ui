@@ -29,6 +29,7 @@ class App extends Component {
           {this.renderCurrents(this.state.sensorValues)}
           {this.renderElectricEnergyLevels(this.state.sensorValues)}
           {this.renderLevelReports(this.state.sensorValues)}
+          {this.renderAutopilotStates(this.state.sensorValues)}
           {this.renderRFM69GwStats(this.state.sensorValues)}
         </div>
       </div>
@@ -77,6 +78,7 @@ class App extends Component {
   renderCurrents(sensorValues) { return this.renderBasicEvents(sensorValues, 'c', fixedNumber('current'), 'Current', 'A') }
   renderElectricEnergyLevels(sensorValues) { return this.renderBasicEvents(sensorValues, 'e', fixedNumber('ampHours'), 'Electric energy level', 'Ah') }
   renderLevelReports(sensorValues) { return this.renderBasicEvents(sensorValues, 'r', R.prop('level'), 'Level Report', '') }
+  renderAutopilotStates(sensorValues) { return this.renderBasicEvents(sensorValues, 'b', autopilotStateExtractpr, 'Autopilot', '') }
   renderRFM69GwStats(sensorValues) { return this.renderBasicEvents(sensorValues, 's', rfm69GwStatsExtractor, 'RFM69 GW Stats', '') }
 
   renderBasicEvents(sensorValues, tag, valueExtractor, headingText, unitLabel) {
@@ -112,11 +114,14 @@ function eventsByTag(sensorValues, tag) {
 }
 
 function fixedNumber(propName) { return event => R.prop(propName, event).toFixed(2) }
+function autopilotStateExtractpr(event) { return event.enabled ? `Engaged: ${Math.round(radsToDeg(event.course))}°M` : 'Disengaged' }
 function rfm69GwStatsExtractor(event) { return event.rssi + 'dB (ACK: ' + event.ackSent + ')'}
 
 function getInitialMqttBroker() {
   return localStorage.mqttBroker ? JSON.parse(localStorage.mqttBroker) : MQTT_BROKERS[0]
 }
+
+function radsToDeg(radians) { return radians * 180 / Math.PI }
 
 export default App
 
