@@ -27,6 +27,7 @@ class App extends Component {
           {this.renderPressures(this.state.sensorValues)}
           {this.renderTankLevels(this.state.sensorValues)}
           {this.renderCurrents(this.state.sensorValues)}
+          {this.renderElectricEnergyLevels(this.state.sensorValues)}
           {this.renderLevelReports(this.state.sensorValues)}
           {this.renderRFM69GwStats(this.state.sensorValues)}
         </div>
@@ -74,6 +75,7 @@ class App extends Component {
   renderPressures(sensorValues) { return this.renderBasicEvents(sensorValues, 'p', fixedNumber('pressure'), 'Pressure', 'mbar') }
   renderTankLevels(sensorValues) { return this.renderBasicEvents(sensorValues, 'w', fixedNumber('tankLevel'), 'Tank level', '%') }
   renderCurrents(sensorValues) { return this.renderBasicEvents(sensorValues, 'c', fixedNumber('current'), 'Current', 'A') }
+  renderElectricEnergyLevels(sensorValues) { return this.renderBasicEvents(sensorValues, 'e', fixedNumber('ampHours'), 'Electric energy level', 'Ah') }
   renderLevelReports(sensorValues) { return this.renderBasicEvents(sensorValues, 'r', R.prop('level'), 'Level Report', '') }
   renderRFM69GwStats(sensorValues) { return this.renderBasicEvents(sensorValues, 's', rfm69GwStatsExtractor, 'RFM69 GW Stats', '') }
 
