@@ -5,7 +5,7 @@ import R from 'ramda'
 import moment from 'moment'
 import ClearButton from './ClearButton.js'
 
-const MQTT_BROKERS = [{name: 'Home', url: 'ws://mqtt-home.chacal.fi:8883'}, {name: 'Freya', url: 'ws://10.90.100.1:8883'}]
+const MQTT_BROKERS = [{name: 'Home', url: 'ws://mqtt-home.chacal.fi:8883'}, {name: 'Freya', url: 'ws://freya-raspi.chacal.fi:8883'}]
 
 class App extends Component {
   constructor(props) {
