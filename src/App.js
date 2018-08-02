@@ -31,6 +31,7 @@ class App extends Component {
           {this.renderLevelReports(this.state.sensorValues)}
           {this.renderAutopilotStates(this.state.sensorValues)}
           {this.renderRFM69GwStats(this.state.sensorValues)}
+          {this.renderPirSensors(this.state.sensorValues)}
         </div>
       </div>
     )
@@ -80,6 +81,7 @@ class App extends Component {
   renderLevelReports(sensorValues) { return this.renderBasicEvents(sensorValues, 'r', R.prop('level'), 'Level Report', '') }
   renderAutopilotStates(sensorValues) { return this.renderBasicEvents(sensorValues, 'b', autopilotStateExtractpr, 'Autopilot', '') }
   renderRFM69GwStats(sensorValues) { return this.renderBasicEvents(sensorValues, 's', rfm69GwStatsExtractor, 'RFM69 GW Stats', '') }
+  renderPirSensors(sensorValues) { return this.renderBasicEvents(sensorValues, 'k', pirValueExtractor, 'PIR', '') }
 
   renderBasicEvents(sensorValues, tag, valueExtractor, headingText, unitLabel) {
     const selectedEvents = eventsByTag(sensorValues, tag)
@@ -116,6 +118,7 @@ function eventsByTag(sensorValues, tag) {
 function fixedNumber(propName) { return event => event[propName] ? event[propName].toFixed(2) : 'N/A' }
 function autopilotStateExtractpr(event) { return event.enabled ? `Engaged: ${Math.round(radsToDeg(event.course))}°M` : 'Disengaged' }
 function rfm69GwStatsExtractor(event) { return event.rssi + 'dB (ACK: ' + event.ackSent + ')'}
+function pirValueExtractor(event) { return event.motionDetected ? 'Triggered' : 'Not triggered'}
 
 function getInitialMqttBroker() {
   return localStorage.mqttBroker ? JSON.parse(localStorage.mqttBroker) : MQTT_BROKERS[0]
