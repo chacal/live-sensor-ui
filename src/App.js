@@ -97,7 +97,10 @@ class App extends Component {
                 <td className="value">{valueExtractor(e) + ' ' + unitLabel}</td>
                 <td className="vcc">{e.vcc ? (e.vcc / 1000).toFixed(3) + 'V' : '-'}</td>
                 <td className="sampleTime">{e.previousSampleTimeMicros ? e.previousSampleTimeMicros + 'µs' : '-'}</td>
-                <td className="timestamp">{moment(e.ts).format('HH:mm:ss')}</td>
+                <td className="timestamp tooltip_container">
+                  {moment(e.ts).format('HH:mm:ss')}
+                  {e.rssi ? <span className="tooltiptext">{`RSSI: ${e.rssi} dBm`}</span> : ''}
+                </td>
                 <td className="clear"><ClearButton tag={tag} instance={e.instance} mqttClient={this.mqttClient}/></td>
               </tr>)
           }</tbody>
