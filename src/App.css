@@ -11,8 +11,15 @@ h2 {
     display: inline-block;
 }
 
-select.brokerSelect {
+form.brokerSelector {
+    margin-top: 50px;
     float: right;
-    margin-top: 30px;
-    width: auto;
+}
+
+.brokerSelect, .username, .password {
+    margin-left: 5px;
+}
+
+label {
+    margin-left: 20px;
 }

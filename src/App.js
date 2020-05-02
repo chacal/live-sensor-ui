@@ -5,13 +5,25 @@ import R from 'ramda'
 import moment from 'moment'
 import ClearButton from './ClearButton.js'
 
-const MQTT_BROKERS = [{name: 'Haukkakallio', url: 'wss://haukkakallio.chacal.fi:9883'}, {name: 'Freya', url: 'ws://freya-raspi.chacal.fi:9883'}]
+const MQTT_BROKERS = [
+  {
+    name: 'Haukkakallio',
+    url: 'wss://haukkakallio.chacal.fi:9883',
+    username: '',
+    password: '',
+  },
+  {
+    name: 'Freya',
+    url: 'ws://freya-raspi.chacal.fi:9883',
+    username: '',
+    password: ''
+  }]
 
 class App extends Component {
   constructor(props) {
     super(props)
-    this.state = { sensorValues: {}, mqttBroker: getInitialMqttBroker() }
-    this.mqttClient = this.startMqttClient(this.state.mqttBroker.url)
+    this.state = { sensorValues: {}, brokerState: getInitialMqttBrokerState() }
+    this.mqttClient = this.startMqttClient(selectedBroker(this.state))
   }
 
   render() {
@@ -19,9 +31,21 @@ class App extends Component {
       <div className="container">
         <div className="row">
           <h2>Sensors</h2>
-          <select className="brokerSelect form-control input-sm" name="mqttBroker" value={this.state.mqttBroker.name} onChange={this.onMqttBrokerChanged.bind(this)}>
-            { MQTT_BROKERS.map(broker => <option key={broker.url} data-url={broker.url}>{broker.name}</option>) }
-          </select>
+          <form className="brokerSelector form-inline">
+            <label>Broker:
+              <select className="brokerSelect form-control input-sm" name="mqttBroker" value={this.state.brokerState.selected} onChange={this.onMqttBrokerChanged.bind(this)}>
+                { MQTT_BROKERS.map((broker, idx) => <option key={broker.url} value={idx}>{broker.name}</option>) }
+              </select>
+            </label>
+            <label>
+              User:
+              <input className="username form-control input-sm" name="username" value={selectedBroker(this.state).username} onChange={this.onUsernameChanged.bind(this)}/>
+            </label>
+            <label>
+              Password:
+              <input className="password form-control input-sm" name="password" type="password" value={selectedBroker(this.state).password} onChange={this.onPasswordChanged.bind(this)}/>
+            </label>
+          </form>
           {this.renderTemperatures(this.state.sensorValues)}
           {this.renderHumidities(this.state.sensorValues)}
           {this.renderPressures(this.state.sensorValues)}
@@ -39,16 +63,41 @@ class App extends Component {
 
   onMqttBrokerChanged(e) {
     this.mqttClient.end()
+    const selectedBrokerIdx = e.target.value
 
-    const newBroker = MQTT_BROKERS.find(b => b.name === e.target.value)
-    this.setState({ sensorValues: {}, mqttBroker: newBroker })
-    localStorage.mqttBroker = JSON.stringify(newBroker)
+    this.setState(prevState => {
+      const newState = {
+        sensorValues: {},
+        brokerState: R.set(R.lensProp('selected'), selectedBrokerIdx, prevState.brokerState)
+      }
 
-    this.mqttClient = this.startMqttClient(newBroker.url)
+      localStorage.brokerState = JSON.stringify(newState.brokerState)
+      this.mqttClient = this.startMqttClient(selectedBroker(newState))
+
+      return newState
+    })
   }
 
-  startMqttClient(brokerUrl) {
-    const mqttClient = Mqtt.connect(brokerUrl)
+  onUsernameChanged(e) {
+    this.updateStateBrokerProp('username', e.target.value)
+  }
+
+  onPasswordChanged(e) {
+    this.updateStateBrokerProp('password', e.target.value)
+  }
+
+  updateStateBrokerProp(propName, propValue) {
+    this.setState(prevState => {
+      const selIdx = prevState.brokerState.selected
+      const lens = R.lensPath(['brokerState', 'brokers', selIdx, propName])
+      const newState = R.set(lens, propValue, prevState)
+      localStorage.brokerState = JSON.stringify(newState.brokerState)
+      return newState
+    })
+  }
+
+  startMqttClient(broker) {
+    const mqttClient = Mqtt.connect(broker.url, R.pick(['username', 'password'], broker))
     mqttClient.on('connect', () => {
       mqttClient.subscribe('/sensor/+/+/state')
       mqttClient.on('message', this.onMqttMessage.bind(this))
@@ -121,8 +170,15 @@ function autopilotStateExtractpr(event) { return event.enabled ? `Engaged: ${Mat
 function rfm69GwStatsExtractor(event) { return event.rssi + 'dB (ACK: ' + event.ackSent + ')'}
 function pirValueExtractor(event) { return event.motionDetected ? 'Triggered' : 'Not triggered'}
 
-function getInitialMqttBroker() {
-  return localStorage.mqttBroker ? JSON.parse(localStorage.mqttBroker) : MQTT_BROKERS[0]
+function getInitialMqttBrokerState() {
+  return localStorage.brokerState ? JSON.parse(localStorage.brokerState) : {
+    brokers: MQTT_BROKERS,
+    selected: 0
+  }
+}
+
+function selectedBroker(state) {
+  return state.brokerState.brokers[state.brokerState.selected]
 }
 
 function radsToDeg(radians) { return radians * 180 / Math.PI }
