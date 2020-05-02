@@ -72,9 +72,9 @@ class App extends Component {
     }
   }
 
-  renderTemperatures(sensorValues) { return this.renderBasicEvents(sensorValues, 't', fixedNumber('temperature'), 'Temperature', '°C') }
-  renderHumidities(sensorValues) { return this.renderBasicEvents(sensorValues, 'h', fixedNumber('humidity'), 'Humidity', '%H') }
-  renderPressures(sensorValues) { return this.renderBasicEvents(sensorValues, 'p', fixedNumber('pressure'), 'Pressure', 'mbar') }
+  renderTemperatures(sensorValues) { return this.renderBasicEvents(sensorValues, ['t', 'm'], fixedNumber('temperature'), 'Temperature', '°C') }
+  renderHumidities(sensorValues) { return this.renderBasicEvents(sensorValues, ['h', 'm'], fixedNumber('humidity'), 'Humidity', '%H') }
+  renderPressures(sensorValues) { return this.renderBasicEvents(sensorValues, ['p', 'm'], fixedNumber('pressure'), 'Pressure', 'mbar') }
   renderTankLevels(sensorValues) { return this.renderBasicEvents(sensorValues, 'w', fixedNumber('tankLevel'), 'Tank level', '%') }
   renderCurrents(sensorValues) { return this.renderBasicEvents(sensorValues, 'c', fixedNumber('current'), 'Current', 'A') }
   renderElectricEnergyLevels(sensorValues) { return this.renderBasicEvents(sensorValues, 'e', fixedNumber('ampHours'), 'Electric energy level', 'Ah') }
@@ -84,7 +84,7 @@ class App extends Component {
   renderPirSensors(sensorValues) { return this.renderBasicEvents(sensorValues, 'k', pirValueExtractor, 'PIR', '') }
 
   renderBasicEvents(sensorValues, tag, valueExtractor, headingText, unitLabel) {
-    const selectedEvents = eventsByTag(sensorValues, tag)
+    const selectedEvents = eventsByTags(sensorValues, tag)
 
     return selectedEvents.length > 0 ?
       <div>
@@ -101,7 +101,7 @@ class App extends Component {
                   {moment(e.ts).format('HH:mm:ss')}
                   {e.rssi ? <span className="tooltiptext">{`RSSI: ${e.rssi} dBm`}</span> : ''}
                 </td>
-                <td className="clear"><ClearButton tag={tag} instance={e.instance} mqttClient={this.mqttClient}/></td>
+                <td className="clear"><ClearButton tag={e.tag} instance={e.instance} mqttClient={this.mqttClient}/></td>
               </tr>)
           }</tbody>
         </table>
@@ -110,10 +110,11 @@ class App extends Component {
   }
 }
 
-function eventsByTag(sensorValues, tag) {
+function eventsByTags(sensorValues, tags) {
+  const tagsArr = Array.isArray(tags) ? tags : [tags]
   return R.pipe(
     R.values,
-    R.filter(R.propEq('tag', tag)),
+    R.filter(R.propSatisfies(t => tagsArr.includes(t), 'tag')),
     R.sortBy(R.prop('instance'))
   )(sensorValues)
 }
