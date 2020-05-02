@@ -116,7 +116,7 @@ function eventsByTags(sensorValues, tags) {
   )(sensorValues)
 }
 
-function fixedNumber(propName) { return event => event[propName] ? event[propName].toFixed(2) : 'N/A' }
+function fixedNumber(propName) { return event => typeof event[propName] === 'number' ? event[propName].toFixed(2) : 'N/A' }
 function autopilotStateExtractpr(event) { return event.enabled ? `Engaged: ${Math.round(radsToDeg(event.course))}°M` : 'Disengaged' }
 function rfm69GwStatsExtractor(event) { return event.rssi + 'dB (ACK: ' + event.ackSent + ')'}
 function pirValueExtractor(event) { return event.motionDetected ? 'Triggered' : 'Not triggered'}
