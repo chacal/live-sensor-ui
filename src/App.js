@@ -121,7 +121,7 @@ class App extends Component {
     } else {
       try {
         const event = JSON.parse(message)
-        this.setState(prevState => ({sensorValues: R.mergeWith(R.merge, prevState.sensorValues, {[key]: event})}))
+        this.setState(prevState => ({sensorValues: R.mergeRight(prevState.sensorValues, {[key]: event})}))
       } catch(e) {
         console.warn('Exception when handling MQTT message:', message.toString(), e)
       }
