@@ -117,7 +117,7 @@ class App extends Component {
     const key = instance + '_' + tag
 
     if(message.length === 0) {
-      this.setState(prevState => ({sensorValues: R.omit(key, prevState.sensorValues)}))
+      this.setState(prevState => ({sensorValues: R.omit([key], prevState.sensorValues)}))
     } else {
       try {
         const event = JSON.parse(message)
