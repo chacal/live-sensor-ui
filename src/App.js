@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import './App.css'
 import Mqtt from 'mqtt'
-import R from 'ramda'
+import * as R from 'ramda'
 import moment from 'moment'
 import ClearButton from './ClearButton.js'
 
@@ -29,23 +29,29 @@ class App extends Component {
   render() {
     return (
       <div className="container">
+        <div className="row justify-content-between">
+          <div className="col-md-auto">
+            <h3>Sensors</h3>
+          </div>
+          <div className="col-md-auto">
+            <form className="form-inline">
+              <label>Broker:
+                <select className="brokerSelect form-control form-control-sm" name="mqttBroker" value={this.state.brokerState.selected} onChange={this.onMqttBrokerChanged.bind(this)}>
+                  { MQTT_BROKERS.map((broker, idx) => <option key={broker.url} value={idx}>{broker.name}</option>) }
+                </select>
+              </label>
+              <label>
+                User:
+                <input className="username form-control form-control-sm" name="username" value={selectedBroker(this.state).username} onChange={this.onUsernameChanged.bind(this)}/>
+              </label>
+              <label>
+                Password:
+                <input className="password form-control form-control-sm" name="password" type="password" value={selectedBroker(this.state).password} onChange={this.onPasswordChanged.bind(this)}/>
+              </label>
+            </form>
+          </div>
+        </div>
         <div className="row">
-          <h2>Sensors</h2>
-          <form className="brokerSelector form-inline">
-            <label>Broker:
-              <select className="brokerSelect form-control input-sm" name="mqttBroker" value={this.state.brokerState.selected} onChange={this.onMqttBrokerChanged.bind(this)}>
-                { MQTT_BROKERS.map((broker, idx) => <option key={broker.url} value={idx}>{broker.name}</option>) }
-              </select>
-            </label>
-            <label>
-              User:
-              <input className="username form-control input-sm" name="username" value={selectedBroker(this.state).username} onChange={this.onUsernameChanged.bind(this)}/>
-            </label>
-            <label>
-              Password:
-              <input className="password form-control input-sm" name="password" type="password" value={selectedBroker(this.state).password} onChange={this.onPasswordChanged.bind(this)}/>
-            </label>
-          </form>
           {this.renderTemperatures(this.state.sensorValues)}
           {this.renderHumidities(this.state.sensorValues)}
           {this.renderPressures(this.state.sensorValues)}
@@ -138,8 +144,8 @@ class App extends Component {
     const selectedEvents = eventsByTags(sensorValues, tag)
 
     return selectedEvents.length > 0 ?
-      <div>
-        <h3>{headingText}</h3>
+      <div className="col-12">
+        <h4>{headingText}</h4>
         <table className="table table-striped table-bordered text-right basic-event">
           <tbody>{
             selectedEvents.map(e =>

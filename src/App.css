@@ -1,19 +1,14 @@
 table.basic-event { table-layout: fixed; }
 table.basic-event tbody tr td { padding: 4px; }
 table.basic-event td.instance { width: 10%; }
-table.basic-event td.value { width: 31%; }
-table.basic-event td.vcc { width: 15%; }
-table.basic-event td.rssi { width: 15%; }
+table.basic-event td.value { width: 28%; }
+table.basic-event td.vcc { width: 16%; }
+table.basic-event td.rssi { width: 17%; }
 table.basic-event td.timestamp { width: 16%; }
 table.basic-event td.clear { width: 13%; text-align: center; }
 
 h2 {
     display: inline-block;
-}
-
-form.brokerSelector {
-    margin-top: 50px;
-    float: right;
 }
 
 .brokerSelect, .username, .password {
