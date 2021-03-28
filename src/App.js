@@ -51,6 +51,7 @@ class App extends Component {
           {this.renderPressures(this.state.sensorValues)}
           {this.renderTankLevels(this.state.sensorValues)}
           {this.renderCurrents(this.state.sensorValues)}
+          {this.renderVoltages(this.state.sensorValues)}
           {this.renderElectricEnergyLevels(this.state.sensorValues)}
           {this.renderLevelReports(this.state.sensorValues)}
           {this.renderAutopilotStates(this.state.sensorValues)}
@@ -126,6 +127,7 @@ class App extends Component {
   renderPressures(sensorValues) { return this.renderBasicEvents(sensorValues, ['p', 'm'], fixedNumber('pressure'), 'Pressure', 'mbar') }
   renderTankLevels(sensorValues) { return this.renderBasicEvents(sensorValues, 'w', fixedNumber('tankLevel'), 'Tank level', '%') }
   renderCurrents(sensorValues) { return this.renderBasicEvents(sensorValues, 'c', fixedNumber('current'), 'Current', 'A') }
+  renderVoltages(sensorValues) { return this.renderBasicEvents(sensorValues, 'v', vccExtractor, 'Voltage', 'V') }
   renderElectricEnergyLevels(sensorValues) { return this.renderBasicEvents(sensorValues, 'e', fixedNumber('ampHours'), 'Electric energy level', 'Ah') }
   renderLevelReports(sensorValues) { return this.renderBasicEvents(sensorValues, 'r', R.prop('level'), 'Level Report', '') }
   renderAutopilotStates(sensorValues) { return this.renderBasicEvents(sensorValues, 'b', autopilotStateExtractpr, 'Autopilot', '') }
@@ -144,7 +146,7 @@ class App extends Component {
               <tr key={e.instance}>
                 <td className="instance">{e.instance}</td>
                 <td className="value">{valueExtractor(e) + ' ' + unitLabel}</td>
-                <td className="vcc">{e.vcc ? (e.vcc / 1000).toFixed(3) + 'V' : '-'}</td>
+                <td className="vcc">{vccExtractor(e) + ' V'}</td>
                 <td className="rssi">{e.rssi ? e.rssi + ' dBm' : '-'}</td>
                 <td className="timestamp">{moment(e.ts).format('HH:mm:ss')}</td>
                 <td className="clear"><ClearButton tag={e.tag} instance={e.instance} mqttClient={this.mqttClient}/></td>
@@ -169,6 +171,7 @@ function fixedNumber(propName) { return event => typeof event[propName] === 'num
 function autopilotStateExtractpr(event) { return event.enabled ? `Engaged: ${Math.round(radsToDeg(event.course))}°M` : 'Disengaged' }
 function rfm69GwStatsExtractor(event) { return event.rssi + 'dB (ACK: ' + event.ackSent + ')'}
 function pirValueExtractor(event) { return event.motionDetected ? 'Triggered' : 'Not triggered'}
+function vccExtractor(event) { return event.vcc ? (event.vcc / 1000).toFixed(3) : 'N/A' }
 
 function getInitialMqttBrokerState() {
   return localStorage.brokerState ? JSON.parse(localStorage.brokerState) : {
